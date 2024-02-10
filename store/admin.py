@@ -28,6 +28,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ("name", "product_type", "price", "stock_quantity", "is_active")
     search_fields = ["name", "description"]
     list_filter = ["product_type", ]
+    change_form_template = "admin/product/change_form.html"
 
 
 admin.site.register(ProductType)

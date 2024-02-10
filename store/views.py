@@ -1,7 +1,8 @@
+from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework import viewsets, mixins, generics
 
-from store.models import Product, ProductType
+from store.models import Product, ProductType, Size
 from store.serializers import ProductSerializer, ProductTypeSerializer, ProductDetailSerializer, ProductListSerializer
 
 
@@ -28,3 +29,8 @@ class ProductDetail(
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
+
+
+def get_sizes_for_product_type(request, product_type_id: int):
+    sizes = Size.objects.filter(product__product_type_id=product_type_id).values("id", "name")
+    return JsonResponse(list(sizes), safe=False)

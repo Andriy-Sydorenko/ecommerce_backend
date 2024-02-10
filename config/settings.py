@@ -38,10 +38,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    # additional apps
     "rest_framework",
     "drf_spectacular",
     "debug_toolbar",
 
+    # project apps
     "store",
 ]
 

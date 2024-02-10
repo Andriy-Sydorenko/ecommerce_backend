@@ -42,16 +42,23 @@ class Color(models.Model):
 
 def product_image_file_path(instance, filename):
     _, extension = os.path.splitext(filename)
+    base_dir = "uploads/products"
+    if isinstance(instance, ProductImage):
+        product_slug = slugify(instance.product.slug)
+    elif isinstance(instance, Product):
+        product_slug = slugify(instance.name)
+    else:
+        product_slug = "misc"
 
-    filename = f"{slugify(instance.name)}-{uuid.uuid4()}{extension}"
-    return os.path.join("uploads/products", filename)
+    filename = f"{product_slug}-{uuid.uuid4()}{extension}"
+    return os.path.join(base_dir, product_slug, filename)
 
 
 class Product(models.Model):
     # TODO: uncomment if needed custom UUID id field
     # id = models.UUIDField(default=uuid.uuid4(), editable=False, primary_key=True, unique=True)
     product_type = models.ForeignKey(ProductType, related_name="products", on_delete=models.CASCADE)
-    name = models.CharField(max_length=255, null=False, blank=False)
+    name = models.CharField(max_length=255, null=False, blank=False, unique=True)
     slug = models.SlugField(max_length=255, unique=True, null=False, blank=False)
 
     price = models.DecimalField(max_digits=5, decimal_places=2)
@@ -69,6 +76,12 @@ class Product(models.Model):
         help_text="Change product visibility",
         default=True
     )
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+
+        super(Product, self).save(*args, **kwargs)
 
     class Meta:
         indexes = [
