@@ -18,11 +18,19 @@ class ProductType(models.Model):
         max_length=255, unique=True, verbose_name="Category name", help_text="Required and unique"
     )
     sizes = models.ManyToManyField(Size, blank=True)
+    slug = models.SlugField(max_length=255, unique=True, null=False, blank=True)
+
     is_active = models.BooleanField(
         verbose_name="Product type is visible",
         help_text="Change product type visibility",
         default=True
     )
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+
+        super(ProductType, self).save(*args, **kwargs)
 
     class Meta:
         indexes = [
@@ -59,7 +67,7 @@ class Product(models.Model):
     # id = models.UUIDField(default=uuid.uuid4(), editable=False, primary_key=True, unique=True)
     product_type = models.ForeignKey(ProductType, related_name="products", on_delete=models.CASCADE)
     name = models.CharField(max_length=255, null=False, blank=False, unique=True)
-    slug = models.SlugField(max_length=255, unique=True, null=False, blank=False)
+    slug = models.SlugField(max_length=255, unique=True, null=False, blank=True)
 
     price = models.DecimalField(max_digits=5, decimal_places=2)
     thumbnail = models.ImageField(upload_to=product_image_file_path, blank=True, null=True, default="")

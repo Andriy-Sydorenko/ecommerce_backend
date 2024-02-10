@@ -1,6 +1,7 @@
-from django.contrib import admin
 from django import forms
-from store.models import Product, ProductType, Color, Size, ProductImage
+from django.contrib import admin
+
+from store.models import Color, Product, ProductImage, ProductType, Size
 
 
 class ProductAdminForm(forms.ModelForm):
@@ -11,9 +12,9 @@ class ProductAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProductAdminForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.product_type_id:
-            self.fields['sizes'].queryset = Size.objects.filter(producttype__id=self.instance.product_type_id)
+            self.fields["sizes"].queryset = Size.objects.filter(producttype__id=self.instance.product_type_id)
         else:
-            self.fields['sizes'].queryset = Size.objects.none()
+            self.fields["sizes"].queryset = Size.objects.none()
 
 
 class ProductImageInline(admin.TabularInline):

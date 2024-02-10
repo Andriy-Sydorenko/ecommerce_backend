@@ -1,34 +1,47 @@
 from django.http import JsonResponse
-from django.shortcuts import render
-from rest_framework import viewsets, mixins, generics
+from rest_framework import viewsets
+from rest_framework.pagination import PageNumberPagination
 
 from store.models import Product, ProductType, Size
-from store.serializers import ProductSerializer, ProductTypeSerializer, ProductDetailSerializer, ProductListSerializer
+from store.serializers import (ProductDetailSerializer, ProductListSerializer,
+                               ProductSerializer, ProductTypeDetailSerializer,
+                               ProductTypeListSerializer)
+
+
+class StandardPagination(PageNumberPagination):
+    page_size = 10
+    max_page_size = 40
 
 
 # TODO: make that thumbnail by default is the first image in the list of images
 class ProductTypeViewSet(viewsets.ModelViewSet):
     queryset = ProductType.objects.all()
-    serializer_class = ProductTypeSerializer
+    serializer_class = ProductTypeListSerializer
+    lookup_field = "slug"
+    pagination_class = StandardPagination
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ProductTypeListSerializer
+        if self.action == "retrieve":
+            return ProductTypeDetailSerializer
+
+        return ProductTypeListSerializer
 
 
-class ProductList(mixins.ListModelMixin, generics.GenericAPIView):
+class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.prefetch_related("sizes", "colors").all()
     serializer_class = ProductListSerializer
+    lookup_field = "slug"
+    pagination_class = StandardPagination
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ProductListSerializer
+        if self.action == "retrieve":
+            return ProductDetailSerializer
 
-
-class ProductDetail(
-    mixins.RetrieveModelMixin,
-    generics.GenericAPIView,
-):
-    queryset = Product.objects.all()
-    serializer_class = ProductDetailSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
+        return ProductSerializer
 
 
 def get_sizes_for_product_type(request, product_type_id: int):
