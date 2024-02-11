@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin
+from django.forms import BaseInlineFormSet
 
 from store.models import Color, Product, ProductImage, ProductType, Size
 
@@ -21,6 +22,10 @@ class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 3
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request).select_related("product")
+        return qs
+
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -30,6 +35,10 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ["name", "description"]
     list_filter = ["product_type", ]
     change_form_template = "admin/product/change_form.html"
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request).select_related("product_type").prefetch_related("sizes", "colors")
+        return qs
 
 
 admin.site.register(ProductType)

@@ -70,7 +70,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=255, unique=True, null=False, blank=True)
 
     price = models.DecimalField(max_digits=5, decimal_places=2)
-    thumbnail = models.ImageField(upload_to=product_image_file_path, blank=True, null=True, default="")
+    thumbnail = models.ImageField(upload_to=product_image_file_path, blank=True, null=True)
 
     description = models.TextField(blank=True)
     stock_quantity = models.IntegerField()

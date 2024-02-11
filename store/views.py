@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 
@@ -6,6 +7,7 @@ from store.models import Product, ProductType, Size
 from store.serializers import (ProductDetailSerializer, ProductListSerializer,
                                ProductSerializer, ProductTypeDetailSerializer,
                                ProductTypeListSerializer)
+from store.documentation import product_doc_parameters, product_doc_examples
 
 
 class StandardPagination(PageNumberPagination):
@@ -30,10 +32,20 @@ class ProductTypeViewSet(viewsets.ModelViewSet):
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.prefetch_related("sizes", "colors").all()
+    queryset = Product.objects.select_related("product_type")
     serializer_class = ProductListSerializer
     lookup_field = "slug"
     pagination_class = StandardPagination
+
+    def get_queryset(self):
+        name = self.request.query_params.get("product_name")
+        price = self.request.query_params.get("product_price")
+        queryset = self.queryset
+        if name:
+            queryset = queryset.filter(name__icontains=name)
+        if price:
+            queryset = queryset.filter(price=price)
+        return queryset
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -42,6 +54,13 @@ class ProductViewSet(viewsets.ModelViewSet):
             return ProductDetailSerializer
 
         return ProductSerializer
+
+    @extend_schema(
+        parameters=product_doc_parameters,
+        examples=product_doc_examples,
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 def get_sizes_for_product_type(request, product_type_id: int):
