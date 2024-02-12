@@ -9,8 +9,12 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,6 +30,10 @@ SECRET_KEY = "django-insecure-%*%tcgfi4@q!5%g7f&e&b=rfsdewy+@cir_iujckebix*73edj
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 
 # Application definition
@@ -53,6 +61,10 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
+
+    "django.middleware.cache.UpdateCacheMiddleware",
+    "django.middleware.cache.FetchFromCacheMiddleware",
+
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -114,6 +126,36 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Ecommerce API",
+    "DESCRIPTION": "API for ecommerce project",
+    "VERSION": "1.0.0",
+
+}
+
+CACHE_CONTROL_MAX_AGE = 2592000
+# cache setting
+CACHES = {
+  "default": {
+    "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    "TIMEOUT": 10800,
+    "LOCATION": "unique-snowflake",
+  }
+}
+
+if os.environ.get('DJANGO_REDIS_URL'):
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": f"redis://{os.environ.get('DJANGO_REDIS_URL')}",
+            "OPTIONS": {
+                "db": "10",
+                # 'parser_class': 'redis.connection.PythonParser',
+                # 'pool_class': 'redis.BlockingConnectionPool',
+            },
+        }
+    }
+
 AUTH_USER_MODEL = "user.User"
 
 # Internationalization

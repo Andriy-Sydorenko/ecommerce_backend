@@ -1,5 +1,5 @@
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter
 
 product_doc_parameters = [
     OpenApiParameter(

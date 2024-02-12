@@ -3,11 +3,11 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 
+from store.documentation import product_doc_examples, product_doc_parameters
 from store.models import Product, ProductType, Size
 from store.serializers import (ProductDetailSerializer, ProductListSerializer,
                                ProductSerializer, ProductTypeDetailSerializer,
                                ProductTypeListSerializer)
-from store.documentation import product_doc_parameters, product_doc_examples
 
 
 class StandardPagination(PageNumberPagination):

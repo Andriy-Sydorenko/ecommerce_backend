@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib import admin
-from django.forms import BaseInlineFormSet
 
 from store.models import Color, Product, ProductImage, ProductType, Size
 

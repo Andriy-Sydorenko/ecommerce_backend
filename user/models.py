@@ -1,7 +1,4 @@
-from django.contrib.auth.models import (AbstractUser,
-                                        BaseUserManager,
-                                        Permission,
-                                        Group)
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext as _
 
